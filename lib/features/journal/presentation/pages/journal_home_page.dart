@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daily_journal/core/constants/app_colors.dart';
+import 'package:flutter_daily_journal/features/journal/presentation/pages/journal_form_page.dart';
 import 'package:flutter_daily_journal/features/journal/presentation/providers/journal_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -40,7 +41,8 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
             focusedDay: _focusedDay,
             firstDay: DateTime.utc(2025),
             lastDay: DateTime.utc(2050),
-            selectedDayPredicate: (day) => _selectedDay != null && DateUtils.isSameDay(day, _selectedDay),
+            selectedDayPredicate: (day) =>
+                _selectedDay != null && DateUtils.isSameDay(day, _selectedDay),
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 _focusedDay = focusedDay;
@@ -72,9 +74,16 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
                     final journal = state.journals[index];
                     return ListTile(
                       title: Text(journal.title),
-                      subtitle: Text(journal.content.length > 50 ? '${journal.content.substring(0, 50)}...' : journal.content),
+                      subtitle: Text(
+                        journal.content.length > 50
+                            ? '${journal.content.substring(0, 50)}...'
+                            : journal.content,
+                      ),
                       onTap: () {
-                        // TODO : navigate to edit
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => JournalFormPage(existing: journal)),
+                        );
                       },
                     );
                   },
@@ -86,7 +95,7 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: navigate to add journal page
+          Navigator.push(context, MaterialPageRoute(builder: (_) => JournalFormPage()));
         },
         backgroundColor: AppColors.accent,
         shape: const CircleBorder(),
