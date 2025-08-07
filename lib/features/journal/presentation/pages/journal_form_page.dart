@@ -9,7 +9,8 @@ import '../providers/journal_provider.dart';
 
 class JournalFormPage extends ConsumerStatefulWidget {
   final JournalEntity? existing;
-  const JournalFormPage({super.key, this.existing});
+  final DateTime selectedDate;
+  const JournalFormPage({super.key, this.existing, required this.selectedDate});
 
   @override
   ConsumerState<JournalFormPage> createState() => _JournalFormPageState();
@@ -27,7 +28,7 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
   @override
   void initState() {
     super.initState();
-    _date = widget.existing?.date ?? DateTime.now();
+    _date = widget.existing?.date ?? widget.selectedDate;
     _titleController = TextEditingController(text: widget.existing?.title ?? '');
     _contentController = TextEditingController(text: widget.existing?.content ?? '');
     _isFavorite = widget.existing?.isFavorite ?? false;
@@ -50,7 +51,7 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
       } else {
         await notifier.editJournal(newEntry);
       }
-
+      await notifier.filterByDate(_date);
       if (context.mounted) Navigator.pop(context);
     }
   }

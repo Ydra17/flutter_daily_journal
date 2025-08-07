@@ -43,8 +43,7 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
         datesWithJournals.add(DateTime(journalDate.year, journalDate.month, journalDate.day));
       }
     }
-    // Setelah semua jurnal dimuat dan diproses, filter berdasarkan tanggal saat ini
-    await ref.read(journalNotifierProvider.notifier).filterByDate(DateTime.now());
+    await ref.read(journalNotifierProvider.notifier).filterByDate(_focusedDay);
   }
 
   @override
@@ -165,7 +164,12 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => JournalFormPage(existing: journal)),
+                          MaterialPageRoute(
+                            builder: (_) => JournalFormPage(
+                              existing: journal,
+                              selectedDate: _selectedDay ?? DateTime.now(),
+                            ),
+                          ),
                         );
                       },
                     );
@@ -178,7 +182,10 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => JournalFormPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => JournalFormPage(selectedDate: _focusedDay)),
+          );
         },
         backgroundColor: AppColors.accent,
         shape: const CircleBorder(),
