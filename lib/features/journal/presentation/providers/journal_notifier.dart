@@ -26,8 +26,21 @@ class JournalNotifier extends StateNotifier<JournalState> {
   Future<void> loadJournals() async {
     state = state.copyWith(status: JournalStatus.loading);
     try {
-      final journals = await getAllJournals();
-      state = state.copyWith(journals: journals, status: JournalStatus.success);
+      final list = await getAllJournals();
+
+      // bangun set tanggal (dinormalisasi y/m/d)
+      final dates = <DateTime>{};
+      for (final j in list) {
+        final d = j.date;
+        dates.add(DateTime(d.year, d.month, d.day));
+      }
+
+      state = state.copyWith(
+        journals: list, // kalau ingin tampil semua; biasanya UI akan pakai filterByDate setelah ini
+        allDatesWithJournals: dates,
+        status: JournalStatus.success,
+        errorMessage: null,
+      );
     } catch (e) {
       state = state.copyWith(status: JournalStatus.failure, errorMessage: e.toString());
     }
@@ -36,20 +49,22 @@ class JournalNotifier extends StateNotifier<JournalState> {
   Future<void> filterByDate(DateTime date) async {
     state = state.copyWith(status: JournalStatus.loading);
     try {
-      final journals = await getJournalsByDate(date);
-      state = state.copyWith(journals: journals, status: JournalStatus.success);
+      final list = await getJournalsByDate(date);
+      // perhatikan: JANGAN sentuh allDatesWithJournals di sini
+      state = state.copyWith(journals: list, status: JournalStatus.success, errorMessage: null);
     } catch (e) {
       state = state.copyWith(status: JournalStatus.failure, errorMessage: e.toString());
     }
   }
 
+  // create/edit/delete tetap sama; setelah aksi panggil loadJournals()
   Future<void> createJournal(JournalEntity journal) async {
     await addJournal(journal);
     await loadJournals();
   }
 
   Future<void> editJournal(JournalEntity journal) async {
-    await editJournal(journal);
+    await updateJournal(journal);
     await loadJournals();
   }
 

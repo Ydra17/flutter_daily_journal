@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../providers/journal_provider.dart';
+import '../widgets/journal_list_item.dart';
 
 class JournalHomePage extends ConsumerStatefulWidget {
   const JournalHomePage({super.key});
@@ -17,31 +18,22 @@ class JournalHomePage extends ConsumerStatefulWidget {
 class _JournalHomePageState extends ConsumerState<JournalHomePage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.month; // Dipindahkan ke dalam state
-  Set<DateTime> datesWithJournals = {};
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
   void initState() {
     super.initState();
-
     _selectedDay = _focusedDay;
-    // Memanggil fungsi asinkron setelah inisialisasi
     Future.microtask(() async {
-      await loadAndFilterJournals(); // Memanggil fungsi asinkron di initState
+      await ref.read(journalNotifierProvider.notifier).loadJournals();
+      await ref.read(journalNotifierProvider.notifier).filterByDate(_focusedDay);
     });
   }
 
-  // Fungsi asinkron yang memuat dan memfilter jurnal
-  Future<void> loadAndFilterJournals() async {
-    await ref.read(journalNotifierProvider.notifier).loadJournals(); // Tunggu hingga selesai
-    if (ref.read(journalNotifierProvider).journals.isNotEmpty) {
-      datesWithJournals.clear();
-      for (var journal in ref.read(journalNotifierProvider).journals) {
-        final journalDate = journal.date; // Pastikan jurnal memiliki properti 'date'
-        datesWithJournals.add(DateTime(journalDate.year, journalDate.month, journalDate.day));
-      }
-    }
-    await ref.read(journalNotifierProvider.notifier).filterByDate(_focusedDay);
+  bool _isDateWithJournal(Set<DateTime> allDates, DateTime date) {
+    final nd = DateTime(date.year, date.month, date.day);
+    // karena kita sudah simpan normalized, cukup contains
+    return allDates.contains(nd);
   }
 
   @override
@@ -49,28 +41,8 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
     final state = ref.watch(journalNotifierProvider);
     final notifier = ref.read(journalNotifierProvider.notifier);
 
-    for (var journal in state.journals) {
-      final journalDate = journal.date; // Pastikan jurnal memiliki properti 'date'
-      datesWithJournals.add(DateTime(journalDate.year, journalDate.month, journalDate.day));
-    }
-
-    bool isDateWithJournal(DateTime date) {
-      // Normalisasi tanggal ke tahun, bulan, dan hari saja
-      final normalizedDate = DateTime(date.year, date.month, date.day);
-
-      // Periksa apakah tanggal yang sudah dinormalisasi ada dalam Set
-      return datesWithJournals.any((journalDate) {
-        final normalizedJournalDate = DateTime(
-          journalDate.year,
-          journalDate.month,
-          journalDate.day,
-        );
-        return normalizedJournalDate == normalizedDate;
-      });
-    }
-
     return Scaffold(
-      appBar: AppBar(title: Text('My Journal')),
+      appBar: AppBar(title: const Text('My Journal')),
       body: Column(
         children: [
           TableCalendar(
@@ -91,11 +63,9 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
               CalendarFormat.week: 'Week',
               CalendarFormat.month: 'Month',
             },
-            calendarFormat: _calendarFormat, // Menggunakan _calendarFormat dari state
+            calendarFormat: _calendarFormat,
             onPageChanged: (focusedDay) {
-              setState(() {
-                _focusedDay = focusedDay; // Perbarui state untuk focusedDay
-              });
+              setState(() => _focusedDay = focusedDay);
             },
             calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
@@ -104,22 +74,15 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
             ),
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) {
-                // AppLogger.log(datesWithJournals.toString());
-                // AppLogger.log(
-                //   datesWithJournals.contains(date)
-                //       ? 'Date has journal entries'
-                //       : 'Date has no journal entries for $date',
-                // );
-                if (isDateWithJournal(date)) {
-                  return Positioned(
+                if (_isDateWithJournal(state.allDatesWithJournals, date)) {
+                  return const Positioned(
                     bottom: 1,
                     right: 1,
-                    child: Container(
+                    child: SizedBox(
                       height: 6,
                       width: 6,
-                      decoration: const BoxDecoration(
-                        color: Colors.red, // Menandai tanggal dengan jurnal
-                        shape: BoxShape.circle,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                       ),
                     ),
                   );
@@ -127,16 +90,12 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
                 return null;
               },
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: true, // Menampilkan tombol untuk ganti format kalender
-              formatButtonShowsNext: false, // Menampilkan tombol format yang aktif
-            ),
+            headerStyle: const HeaderStyle(formatButtonVisible: true, formatButtonShowsNext: false),
             onFormatChanged: (format) {
-              setState(() {
-                _calendarFormat = format; // Perbarui format kalender berdasarkan pilihan pengguna
-              });
+              setState(() => _calendarFormat = format);
             },
           ),
+
           Expanded(
             child: Builder(
               builder: (context) {
@@ -152,42 +111,10 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
                   itemCount: state.journals.length,
                   itemBuilder: (context, index) {
                     final journal = state.journals[index];
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ), // Margin agar lebih spacing
-                      decoration: BoxDecoration(
-                        color: Colors.white, // Background warna
-                        borderRadius: BorderRadius.circular(12), // Sudut melengkung
-                        border: Border.all(color: Colors.grey.shade300, width: 1), // Border abu-abu
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1), // Bayangan halus
-                            blurRadius: 4, // Menambah efek blur shadow
-                            offset: const Offset(0, 2), // Posisi bayangan
-                          ),
-                        ],
-                      ),
-                      child: ListTile(
-                        // contentPadding: const EdgeInsets.symmetric(
-                        //   horizontal: 16,
-                        //   vertical: 12,
-                        // ), // Padding dalam ListTile
-                        title: Text(
-                          journal.title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black.withOpacity(0.7),
-                          ),
-                        ),
-                        subtitle: Text(
-                          journal.content.length > 50
-                              ? '${journal.content.substring(0, 50)}...'
-                              : journal.content,
-                          style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
-                        ),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: JournalListItem(
+                        journal: journal,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -197,8 +124,10 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
                                 selectedDate: _selectedDay ?? DateTime.now(),
                               ),
                             ),
-                          );
+                          ).then((_) => notifier.filterByDate(_selectedDay ?? _focusedDay));
                         },
+                        // optional: aksi long-press (mis. context menu)
+                        // onLongPress: () => _showJournalMenu(journal),
                       ),
                     );
                   },
@@ -208,12 +137,13 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
           ),
         ],
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => JournalFormPage(selectedDate: _focusedDay)),
-          );
+          ).then((_) => notifier.filterByDate(_selectedDay ?? _focusedDay));
         },
         backgroundColor: AppColors.accent,
         shape: const CircleBorder(),
