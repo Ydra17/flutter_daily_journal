@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daily_journal/shared/widgets/date_picker.dart';
 import 'package:flutter_daily_journal/shared/widgets/forms.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../shared/widgets/danger_button.dart';
 import '../../domain/entities/journal_entity.dart';
 import '../providers/journal_provider.dart';
 
@@ -68,77 +69,38 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: ListView(
-            children: [
-              CustomTextField2(controller: _titleController, label: 'Title'),
-              const SizedBox(height: 16),
-              CustomTextField2(controller: _contentController, label: 'Content', maxLines: 8),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(
-                        51,
-                        158,
-                        158,
-                        158,
-                      ), // Colors.grey.withOpacity(0.2)
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
+          child: SingleChildScrollView(
+            // padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CustomTextField2(controller: _titleController, label: 'Title'),
+                const SizedBox(height: 16),
+                CustomTextField2(controller: _contentController, label: 'Content', maxLines: 8),
+                const SizedBox(height: 16),
+                CustomDatePicker(
+                  date: _date,
+                  onChanged: (picked) => setState(() => _date = picked),
+                  label: 'Date',
+                  // helpText: 'Select the date for this entry',
                 ),
-                child: Row(
-                  children: [
-                    // Label "Date"
-                    const Text('Date', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(width: 16), // Tambahkan jarak antar elemen
-                    // Tanggal dalam format DD-MM-YYYY
-                    Text(
-                      DateFormat('dd-MM-yyyy').format(_date), // Format menggunakan intl package
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black.withAlpha(
-                          (0.7 * 255).toInt(),
-                        ), // Sedikit opacity untuk warna teks
-                      ),
-                    ),
-                    const Spacer(),
-                    // Tombol untuk memilih tanggal
-                    TextButton(
-                      onPressed: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2050),
-                          initialDate: _date,
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _date = picked;
-                          });
-                        }
-                      },
-                      child: const Text(
-                        'Change',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue, // Warna tombol untuk aksen
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                if (widget.existing != null) // ✅ Hanya tampil jika ada data existing
+                  ConfirmingDangerButton(
+                    label: 'Delete Journal',
+                    onConfirmed: () async {
+                      await ref
+                          .read(journalNotifierProvider.notifier)
+                          .removeJournal(widget.existing!.id);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Journal deleted')));
+                      }
+                    },
+                  ),
+              ],
+            ),
           ),
         ),
       ),
