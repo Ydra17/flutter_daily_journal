@@ -4,7 +4,7 @@ import 'package:flutter_daily_journal/shared/widgets/forms.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../shared/widgets/danger_button.dart';
+import '../../../../shared/widgets/action_button.dart';
 import '../../domain/entities/journal_entity.dart';
 import '../providers/journal_provider.dart';
 
@@ -85,17 +85,29 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
                   // helpText: 'Select the date for this entry',
                 ),
                 const SizedBox(height: 16),
+                ActionButton(
+                  label: 'Save Journal',
+                  icon: Icons.save_outlined,
+                  kind: ActionButtonKind.primary,
+                  variant: ActionButtonVariant.filled,
+                  expand: true,
+                  onPressed: _handleSubmit,
+                ),
+
+                const SizedBox(height: 16),
                 if (widget.existing != null) // ✅ Hanya tampil jika ada data existing
-                  ConfirmingDangerButton(
+                  ConfirmingActionButton(
                     label: 'Delete Journal',
+                    kind: ActionButtonKind.danger,
                     onConfirmed: () async {
                       await ref
                           .read(journalNotifierProvider.notifier)
-                          .removeJournal(widget.existing!.id);
+                          .removeJournal(widget.existing?.id ?? '');
                       if (context.mounted) {
                         ScaffoldMessenger.of(
                           context,
                         ).showSnackBar(const SnackBar(content: Text('Journal deleted')));
+                        if (context.mounted) Navigator.pop(context);
                       }
                     },
                   ),
