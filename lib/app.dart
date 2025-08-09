@@ -8,6 +8,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Daily Journal', theme: lightTheme, darkTheme: darkTheme, themeMode: ThemeMode.system, home: const JournalHomePage());
+    return MaterialApp(
+      title: 'Daily Journal',
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.system,
+      home: const JournalHomePage(),
+    );
   }
 }

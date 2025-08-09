@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_daily_journal/app.dart';
 import 'package:flutter_daily_journal/core/constants/app_colors.dart';
-import 'package:flutter_daily_journal/core/utils/logger.dart';
 import 'package:flutter_daily_journal/features/journal/presentation/pages/journal_form_page.dart';
 import 'package:flutter_daily_journal/features/journal/presentation/providers/journal_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -154,24 +152,54 @@ class _JournalHomePageState extends ConsumerState<JournalHomePage> {
                   itemCount: state.journals.length,
                   itemBuilder: (context, index) {
                     final journal = state.journals[index];
-                    return ListTile(
-                      title: Text(journal.title),
-                      subtitle: Text(
-                        journal.content.length > 50
-                            ? '${journal.content.substring(0, 50)}...'
-                            : journal.content,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => JournalFormPage(
-                              existing: journal,
-                              selectedDate: _selectedDay ?? DateTime.now(),
-                            ),
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ), // Margin agar lebih spacing
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Background warna
+                        borderRadius: BorderRadius.circular(12), // Sudut melengkung
+                        border: Border.all(color: Colors.grey.shade300, width: 1), // Border abu-abu
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1), // Bayangan halus
+                            blurRadius: 4, // Menambah efek blur shadow
+                            offset: const Offset(0, 2), // Posisi bayangan
                           ),
-                        );
-                      },
+                        ],
+                      ),
+                      child: ListTile(
+                        // contentPadding: const EdgeInsets.symmetric(
+                        //   horizontal: 16,
+                        //   vertical: 12,
+                        // ), // Padding dalam ListTile
+                        title: Text(
+                          journal.title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black.withOpacity(0.7),
+                          ),
+                        ),
+                        subtitle: Text(
+                          journal.content.length > 50
+                              ? '${journal.content.substring(0, 50)}...'
+                              : journal.content,
+                          style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.6)),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => JournalFormPage(
+                                existing: journal,
+                                selectedDate: _selectedDay ?? DateTime.now(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     );
                   },
                 );

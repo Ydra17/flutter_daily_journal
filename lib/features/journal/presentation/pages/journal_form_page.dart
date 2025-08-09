@@ -73,19 +73,6 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
               CustomTextField2(controller: _titleController, label: 'Title'),
               const SizedBox(height: 16),
               CustomTextField2(controller: _contentController, label: 'Content', maxLines: 8),
-              // TextFormField(
-              //   controller: _titleController,
-              //   decoration: const InputDecoration(labelText: 'Title'),
-              //   validator: (value) => value == null || value.isEmpty ? 'Title Required' : null,
-              // ),
-              // const SizedBox(height: 16),
-              // TextFormField(
-              //   controller: _contentController,
-
-              //   decoration: const InputDecoration(labelText: 'Content'),
-              //   maxLines: 8,
-              //   validator: (value) => value == null || value.isEmpty ? 'Content Required' : null,
-              // ),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -118,7 +105,9 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black.withOpacity(0.7), // Sedikit opacity untuk warna teks
+                        color: Colors.black.withAlpha(
+                          (0.7 * 255).toInt(),
+                        ), // Sedikit opacity untuk warna teks
                       ),
                     ),
                     const Spacer(),

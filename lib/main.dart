@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daily_journal/core/theme/dark_theme.dart';
+import 'package:flutter_daily_journal/core/theme/light_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -20,7 +22,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: const JournalHomePage(),
     );
   }
