@@ -22,7 +22,7 @@ class AttachmentUtils {
     }
 
     final id = _uuid.v4();
-    final ext = p.extension(name);
+    // final ext = p.extension(name);
     final destPath = p.join(destDir.path, '${id}_$name');
 
     await file.copy(destPath);
