@@ -62,8 +62,8 @@ class _JournalFormPageState extends ConsumerState<JournalFormPage> {
     final isEditing = widget.existing != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Entry' : 'New Entry'),
-        actions: [IconButton(onPressed: _handleSubmit, icon: const Icon(Icons.save))],
+        title: Text(isEditing ? 'Edit Journal' : 'New Journal'),
+        // actions: [IconButton(onPressed: _handleSubmit, icon: const Icon(Icons.save))],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

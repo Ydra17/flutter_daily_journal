@@ -10,15 +10,25 @@ import 'package:flutter_daily_journal/features/journal/presentation/providers/jo
 import '../../domain/repositories/journal_repository_provider.dart';
 
 /// Provider untuk dependensi use case
-final getAllJournalsProvider = Provider<GetAllJournals>((ref) => GetAllJournals(ref.watch(journalRepositoryProvider)));
+final getAllJournalsProvider = Provider<GetAllJournals>(
+  (ref) => GetAllJournals(ref.watch(journalRepositoryProvider)),
+);
 
-final getJournalsByDateProvider = Provider<GetJournalsByDate>((ref) => GetJournalsByDate(ref.watch(journalRepositoryProvider)));
+final getJournalsByDateProvider = Provider<GetJournalsByDate>(
+  (ref) => GetJournalsByDate(ref.watch(journalRepositoryProvider)),
+);
 
-final addJournalProvider = Provider<AddJournal>((ref) => AddJournal(ref.watch(journalRepositoryProvider)));
+final addJournalProvider = Provider<AddJournal>(
+  (ref) => AddJournal(ref.watch(journalRepositoryProvider)),
+);
 
-final updateJournalProvider = Provider<UpdateJournal>((ref) => UpdateJournal(ref.watch(journalRepositoryProvider)));
+final updateJournalProvider = Provider<UpdateJournal>(
+  (ref) => UpdateJournal(ref.watch(journalRepositoryProvider)),
+);
 
-final deleteJournalProvider = Provider<DeleteJournal>((ref) => DeleteJournal(ref.watch(journalRepositoryProvider)));
+final deleteJournalProvider = Provider<DeleteJournal>(
+  (ref) => DeleteJournal(ref.watch(journalRepositoryProvider)),
+);
 
 /// Main StateNotifierProvider
 final journalNotifierProvider = StateNotifierProvider<JournalNotifier, JournalState>((ref) {
