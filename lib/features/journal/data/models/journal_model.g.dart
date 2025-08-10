@@ -22,13 +22,14 @@ class JournalModelAdapter extends TypeAdapter<JournalModel> {
       title: fields[2] as String,
       content: fields[3] as String,
       isFavorite: fields[4] as bool,
+      attachments: (fields[5] as List?)?.cast<AttachmentModel>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, JournalModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class JournalModelAdapter extends TypeAdapter<JournalModel> {
       ..writeByte(3)
       ..write(obj.content)
       ..writeByte(4)
-      ..write(obj.isFavorite);
+      ..write(obj.isFavorite)
+      ..writeByte(5)
+      ..write(obj.attachments);
   }
 
   @override
