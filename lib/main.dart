@@ -4,6 +4,7 @@ import 'package:flutter_daily_journal/core/theme/light_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'features/journal/data/models/attachment_model.dart';
 import 'features/journal/data/models/journal_model.dart';
 import 'features/journal/presentation/pages/journal_home_page.dart';
 
@@ -11,7 +12,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(JournalModelAdapter()); // jika ada model Hive
+  Hive.registerAdapter(AttachmentModelAdapter());
   await Hive.openBox<JournalModel>('journals');
+  await Hive.openBox<AttachmentModel>('attachments');
   runApp(ProviderScope(child: const MyApp()));
 }
 
